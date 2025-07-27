@@ -1,94 +1,109 @@
-# Obsidian Sample Plugin
+# **Easily Habit Tracker for Obsidian**
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+A flexible and powerful plugin for tracking habits directly within your periodic (daily, weekly, monthly) notes and visualizing your progress with highly customizable, interactive views.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## **Features**
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+* ✅ **Inline Habit Tracking:** Track habits directly in your notes using four different interactive types:  
+  * **Checks:** Simple multi-checkboxes for binary tasks.  
+  * **Ratings:** Star ratings for subjective measures.  
+  * **Numbers:** Track values against a target (e.g., pages read, minutes exercised).  
+  * **Progress:** A simple slider for percentage-based tasks.  
+* 🎨 **Powerful Block Rendering:** Use a habit-tracker code block to generate beautiful visualizations of your habit data.  
+  * **Monthly Calendar View:** A compact, GitHub-style calendar for each habit.  
+  * **Yearly Calendar View:** A full-year contribution graph for a high-level overview.  
+  * **Weekly List View:** A clean, row-based view of your habits for the week.  
+* ⚙️ **Highly Customizable:**  
+  * Define custom icons and colors for each habit in its own note.  
+  * Set global default icons for a consistent look.  
+  * Interactive controls on rendered blocks to change layout and icon shapes on the fly.  
+* 🚀 **Streamlined Workflow:**  
+  * Insert habit trackers quickly using the command palette or the right-click context menu.  
+  * Intelligent modals that can pre-fill settings based on the habit link in the current line.  
+  * Seamless integration with the **Periodic Notes** plugin to find your data automatically.
 
-## First time developing plugins?
+## **How to Use**
 
-Quick starting guide for new plugin devs:
+The plugin has two core components: tracking habits inline in your periodic notes, and rendering that data in a code block.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### **Step 1: Setting Up Your Habits**
 
-## Releasing new releases
+For the plugin to recognize a habit, you must create a dedicated note for it in a folder you specify in the settings.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+1. **Create a "Habits" Folder:** Create a folder in your vault to store your habit notes (e.g., Habits/).  
+2. **Set the Folder in Settings:** Go to Settings \-\> Easily Habit Tracker and set the "Habit folder" to the one you just created.  
+3. **Create a Note for Each Habit:** Inside your "Habits" folder, create a new note for each habit you want to track (e.g., Read Book.md, Exercise.md).
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+#### **Customizing a Habit**
 
-## Adding your plugin to the community plugin list
+You can customize the appearance of each habit by adding properties (frontmatter) to its note.
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+**Example Read Book.md:**
 
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
 ```
+---  
+Habit_Color: "4a88c7"  
+Completed_Icon_In_Calendar: "📚"  
+Uncompleted_Icon_In_Calendar: "❌"  
+---
 
-If you have multiple URLs, you can also do:
-
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+This is my note for the "Read Book" habit.
 ```
+### **Step 2: Tracking Habits in Periodic Notes**
 
-## API Documentation
+In your daily, weekly, or monthly notes, you can now track your habits.
 
-See https://github.com/obsidianmd/obsidian-api
+1. **Link to Your Habit:** On a new line, create a link to your habit note (e.g., \[\[Read Book\]\]).  
+2. **Insert a Tracker:** With the cursor on the same line, open the command palette (Ctrl/Cmd \+ P) and search for "Habit:". Choose the tracker you want (e.g., Habit: Insert Habit: Number).  
+3. A modal will pop up allowing you to configure the tracker. It will be inserted at your cursor.
+
+Your final line will look something like this:
+
+\[\[Read Book\]\]: {{number:10,50,pages,T:id123456789}}
+
+This will render as an interactive number input in Live Preview and Reading mode.
+
+### **Step 3: Visualizing with a Code Block**
+
+To see your progress, you can add a habit-tracker code block to any note.
+
+1. Open the command palette and run **"Habit: Insert Habit Tracker Block"**.  
+2. A modal will appear, allowing you to configure the view.  
+3. A code block will be inserted into your note, which will render into a visualization.
+
+**Example Code Block:**
+```
+```habit-tracker
+type: daily  
+habits: ALL  
+period: month 2025-07  
+view: Calendar-Tight  
+shape: circle  
+habitsPerRow: 3  
+useCustomizedColor: true
+\```
+```
+#### **Code Block Settings**
+
+| Key | Description | Example Values |
+| :---- | :---- | :---- |
+| type | The type of periodic note to find data in. | daily, weekly |
+| habits | The habits to display. Use ALL for all habits in your folder, or a comma-separated list of links. | ALL, \[\[Read Book\]\], \[\[Exercise\]\] |
+| period | The time period to display. Consists of a unit and a value. | month 2025-07, year 2025, week 2025-W30 |
+| view | The style of the visualization. | Calendar-Tight, List-Row |
+| shape | The default shape of the icons in the view. | circle, square |
+| habitsPerRow | (For Calendar views) How many habit calendars to display side-by-side. | 1, 2, 3... |
+| useCustomizedColor | If true, the view will use the Habit\_Color property from each habit's note. | true, false |
+
+## **Settings**
+
+The plugin's settings can be found in Settings \-\> Easily Habit Tracker. Here you can configure:
+
+* The path to your **Habit Folder**.  
+* The names of the **custom properties** the plugin looks for in your habit notes.  
+* The **default icons** used for inline and block rendering.  
+* The name of the **heading** in your periodic notes where the plugin should look for data.
+
+## **Contributing**
+
+Found a bug or have a feature request? Feel free to open an issue on the [GitHub repository](https://www.google.com/search?q=https://github.com/yodaliu0414/obsidian-easily-habit-tracker).
