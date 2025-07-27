@@ -1,0 +1,11 @@
+{
+	"id": "easily-habit-tracker",
+	"name": "Easily Habit Tracker",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "An Obsidian plugin for tracking and rendering habits without code",
+	"author": "YodaLiu",
+	"authorUrl": "https://obsidian.md",
+	"fundingUrl": "https://obsidian.md/pricing",
+	"isDesktopOnly": false
+}
