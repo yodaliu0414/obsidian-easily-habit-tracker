@@ -2,6 +2,8 @@
 
 A flexible and powerful plugin for tracking habits directly within your periodic (daily, weekly, monthly) notes and visualizing your progress with highly customizable, interactive views.
 
+## Requirements
+* Periodic Notes: This plugin relies heavily on the **Periodic Notes** plugin to find and process your habit data. You must have it installed and configured for the types of notes (daily, weekly, etc.) you want to track.
 ## **Features**
 
 * ✅ **Inline Habit Tracking:** Track habits directly in your notes using four different interactive types:  
