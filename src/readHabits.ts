@@ -36,7 +36,6 @@ export async function readHabitData(app: App, plugin: HabitTrackerPlugin, settin
     
     const endDate = moment(startDate).endOf(periodType as any);
 
-    console.log(`Habit Tracker: Scanning for data from ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}`);
 
     for (let m = moment(startDate); m.isSameOrBefore(endDate); m.add(1, 'days')) {
         const dayStr = m.format('YYYY-MM-DD');
@@ -77,7 +76,7 @@ export async function readHabitData(app: App, plugin: HabitTrackerPlugin, settin
             continue;
         }
         
-        console.log(`Habit Tracker: Found heading "${heading}" in file: ${file.path}`);
+
 
         const habitMarkerRegex = /\[\[([^\]]+)\]\]\s*:?\s*\{\{([a-z]+):(.+?):(id\d+)\}\}/g;
 
@@ -88,8 +87,7 @@ export async function readHabitData(app: App, plugin: HabitTrackerPlugin, settin
                 const [full, habitName, type, valStr, id] = match;
                 
                 if (!habitsToRender.includes(habitName)) continue;
-                
-                console.log(`Habit Tracker: [${dayStr}] Found habit "${habitName}" with data.`);
+
 
                 const parts = valStr.split(',');
                 let value = parseInt(parts[0]) || 0;

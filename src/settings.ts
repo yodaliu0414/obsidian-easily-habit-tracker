@@ -287,7 +287,7 @@ export class HabitSettingTab extends PluginSettingTab {
 				const dailyNoteFolder = anySettings.daily.folder || '';
 				const filename = moment().format(dailyNoteFormat) + '.md';
 				const path = dailyNoteFolder ? `${dailyNoteFolder}/${filename}` : filename;
-				console.log("Calculated Daily Note Path:", path);
+
 				new Notice(`Today's daily note path: ${path}`);
 			} else {
 				new Notice("Daily notes are not enabled in Periodic Notes, cannot run test.");
