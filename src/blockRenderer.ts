@@ -17,7 +17,7 @@ const viewRenderers: { [key: string]: Function } = {
 /**
  * Registers the handler for the 'habit-tracker' code block.
  */
-export function registerHabitTrackerBlock(plugin: HabitTrackerPlugin) {
+export function registerHabitTrackerBlock(plugin: typeof HabitTrackerPlugin) {
     plugin.registerMarkdownCodeBlockProcessor('habit-tracker', (source:string, el:HTMLElement, ctx:MarkdownPostProcessorContext) => {
         renderHabitBlock(plugin, source, el, ctx);
     });
@@ -26,7 +26,7 @@ export function registerHabitTrackerBlock(plugin: HabitTrackerPlugin) {
 /**
  * The main function to render a habit tracker code block.
  */
-async function renderHabitBlock(plugin: HabitTrackerPlugin, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+async function renderHabitBlock(plugin: typeof HabitTrackerPlugin, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     el.empty();
 
     let settings: any;

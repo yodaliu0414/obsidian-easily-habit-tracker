@@ -13,7 +13,7 @@ export interface HabitData {
 
 export type HabitDataMap = Map<string, Map<string, HabitData>>;
 
-export async function readHabitData(app: App, plugin: HabitTrackerPlugin, settings: any, habitsToRender: string[]): Promise<HabitDataMap> {
+export async function readHabitData(app: App, plugin: typeof HabitTrackerPlugin, settings: any, habitsToRender: string[]): Promise<HabitDataMap> {
     const habitDataMap: HabitDataMap = new Map();
     const periodicSettings = getPeriodicNotesSettings(app) as any;
     
