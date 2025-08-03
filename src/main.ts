@@ -26,6 +26,7 @@ export default class HabitTrackerPlugin extends Plugin {
 
 		this.addRibbonIcon('calendar-check', 'Insert Habit Tracker Block', () => this.insertTrackerCodeblock());
 		this.addCommand({ id: 'insert-habit-tracker-block', name: 'Insert Habit Tracker Block', callback: () => this.insertTrackerCodeblock() });
+
 		this.addCommand({ id: 'insert-habit-checks', name: 'Insert Habit: Checks', editorCallback: (editor: Editor) => this.showChecksModal(editor) });
 		this.addCommand({ id: 'insert-habit-rating', name: 'Insert Habit: Rating', editorCallback: (editor: Editor) => this.showRatingModal(editor) });
 		this.addCommand({ id: 'insert-habit-number', name: 'Insert Habit: Number', editorCallback: (editor: Editor) => this.showNumberModal(editor) });
@@ -43,46 +44,76 @@ export default class HabitTrackerPlugin extends Plugin {
 
 		this.registerMarkdownPostProcessor(async (el, ctx) => {
 			await this.refreshHabitCache();
-			const elements = el.querySelectorAll("p, li");
-			if (elements.length === 0) return;
+			
+			const elementsToProcess = el.querySelectorAll("p, li");
 
-			const regex = /(?:\[\[([^\]]+)\]\]|<a [^>]*>([^<]+)<\/a>)?\s*:?\s*\{\{([a-z]+):(.+?):(id\d+)\}\}/g;
+			for (const p of Array.from(elementsToProcess)) {
+				// We need to process all child nodes to respect <br> tags
+				const childNodes = Array.from(p.childNodes);
 
-			for (const p of Array.from(elements)) {
-				if (!p.innerHTML.includes("{{")) continue;
+				for (const node of childNodes) {
+					// Only process text nodes
+					if (node.nodeType !== Node.TEXT_NODE) continue;
 
-				const newHtml = p.innerHTML.replace(regex, (
-					fullMatch, rawHabitName, renderedHabitName, type, valStr, id
-				) => {
-					const habitName = rawHabitName || renderedHabitName;
-					const habitProperties = habitName ? this.habitCache.get(habitName) : undefined;
-					const parts = valStr.split(',');
-					const warnFlag = (parts[parts.length - 1] || 'T').toUpperCase() === 'T';
+					const text = node.textContent || "";
+					const regex = /\{\{([a-z]+):(.+?):(id\d+)\}\}/g;
+					
+					if (!text.match(regex)) continue;
 
-					let renderedHtml = "";
-					// CORRECTED: Function calls now match their definitions
-					switch (type) {
-						case "checks": renderedHtml = renderChecks(valStr, id, this); break;
-						case "rating": renderedHtml = renderRating(valStr, id, this); break;
-						case "number": renderedHtml = renderNumber(valStr, id); break;
-						case "progress": renderedHtml = renderProgress(valStr, id); break;
-						default: return fullMatch;
+					const fragment = document.createDocumentFragment();
+					let lastIndex = 0;
+					let match;
+
+					while ((match = regex.exec(text)) !== null) {
+						const [fullMarker, type, valStr, id] = match;
+						
+						if (match.index > lastIndex) {
+							fragment.appendText(text.substring(lastIndex, match.index));
+						}
+
+						// Check if the node *before* this text node is a link
+						let habitName: string | null = null;
+						const prevSibling = node.previousSibling;
+						if (prevSibling && prevSibling.nodeName === 'A' && (prevSibling as HTMLElement).hasClass('internal-link')) {
+							habitName = (prevSibling as HTMLElement).getAttr('data-href');
+						}
+						
+						const habitProperties = habitName ? this.habitCache.get(habitName) : undefined;
+						let renderedEl: HTMLElement | null = null;
+						switch (type) {
+							case "checks": renderedEl = renderChecks(valStr, id, this, habitProperties); break;
+							case "rating": renderedEl = renderRating(valStr, id, this, habitProperties); break;
+							case "number": renderedEl = renderNumber(valStr, id); break;
+							case "progress": renderedEl = renderProgress(valStr, id); break;
+						}
+
+						if (renderedEl) {
+							fragment.appendChild(renderedEl);
+
+							const parts = valStr.split(',');
+							const warnFlag = (parts[parts.length - 1] || 'T').toUpperCase() === 'T';
+							if (habitName && warnFlag && !this.habitCache.has(habitName)) {
+								const warningEl = fragment.createEl("em", { cls: "habit-warning" });
+								warningEl.appendText(" ❗Warning, ");
+								warningEl.createEl("strong", { text: habitName });
+								warningEl.appendText(" is not in Habit Folder.");
+							}
+						} else {
+							fragment.appendText(fullMarker);
+						}
+						
+						lastIndex = match.index + fullMarker.length;
 					}
 
-					let finalReplacement = fullMatch.replace(/\{\{.*\}\}/, renderedHtml);
-
-					if (habitName && warnFlag && !this.habitCache.has(habitName)) {
-						finalReplacement += ` <em class="habit-warning">❗Warning, <strong>${habitName}</strong> is not in Habit Folder.</em>`;
+					if (lastIndex < text.length) {
+						fragment.appendText(text.substring(lastIndex));
 					}
-
-					return finalReplacement;
-				});
-
-				if (newHtml !== p.innerHTML) {
-					p.innerHTML = newHtml;
-					// CORRECTED: Cast 'p' to HTMLElement
-					attachHandlers(p as HTMLElement, this);
+					
+					// Replace the original text node with our new fragment
+					p.replaceChild(fragment, node);
 				}
+				
+				attachHandlers(p as HTMLElement, this);
 			}
 		});
 
@@ -116,8 +147,10 @@ export default class HabitTrackerPlugin extends Plugin {
         const match = line.match(/\[\[([^\]]+)\]\]/);
         const habitName = match ? match[1] : null;
         const props = habitName ? this.habitCache.get(habitName) : null;
+
         const initialChecked = (props && props[this.settings.prop_Checked_Icon]) || this.settings.inline_DefaultCheckedIcon;
         const initialUnchecked = (props && props[this.settings.prop_Unchecked_Icon]) || this.settings.inline_DefaultUncheckedIcon;
+
 		new ChecksModal(this.app, initialChecked, initialUnchecked, (count, checkedIcon, uncheckedIcon, warn) => {
 			const warnFlag = warn ? 'T' : 'F';
 			this.insertMarker(editor, "checks", `0,${count},${"0".repeat(count)},${checkedIcon},${uncheckedIcon},${warnFlag}`);
@@ -129,8 +162,10 @@ export default class HabitTrackerPlugin extends Plugin {
         const match = line.match(/\[\[([^\]]+)\]\]/);
         const habitName = match ? match[1] : null;
         const props = habitName ? this.habitCache.get(habitName) : null;
+
         const initialRated = (props && props[this.settings.prop_Rated_Icon]) || this.settings.inline_DefaultRatedIcon;
         const initialUnrated = (props && props[this.settings.prop_Unrated_Icon]) || this.settings.inline_DefaultUnratedIcon;
+
 		new RatingModal(this.app, initialRated, initialUnrated, (max, rated, unrated, warn) => {
 			const warnFlag = warn ? 'T' : 'F';
 			this.insertMarker(editor, "rating", `0,${max},${rated},${unrated},${warnFlag}`);

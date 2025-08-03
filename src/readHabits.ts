@@ -1,5 +1,5 @@
 import { App, TFile, moment } from 'obsidian';
-import HabitTrackerPlugin from './main';
+import HabitTrackerPlugin from '../main';
 import { getPeriodicNotesSettings } from './periodicNotesUtils';
 
 export interface HabitData {

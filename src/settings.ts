@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting, Notice, moment, TFolder } from "obsidian";
 import HabitTrackerPlugin from "./main"; // Import the main plugin class
 import { FolderSuggestModal } from './modals';
-import { getPeriodicNotesSettings } from './periodicNotesUtils';
+import { PeriodicNotesSettings, getPeriodicNotesSettings } from './periodicNotesUtils';
 import { cssVarToHex } from './colorUtils';
 
 // This interface defines all the settings for our plugin.
@@ -46,9 +46,9 @@ export const DEFAULT_SETTINGS: HabitTrackerSettings = {
 	inline_DefaultCheckedIcon: "✅",
 	inline_DefaultUncheckedIcon: "❌",
 	inline_DefaultRatedIcon: "⭐",
-	inline_DefaultUnratedIcon: "🔘",
-	render_DefaultCompletedIcon: "",
-	render_DefaultUncompletedIcon: "",
+	inline_DefaultUnratedIcon: "☆",
+	render_DefaultCompletedIcon: "🟢",
+	render_DefaultUncompletedIcon: "🔴",
 	globalHabitColor: "#483699", // A default color
 };
 
@@ -67,7 +67,7 @@ export class HabitSettingTab extends PluginSettingTab {
 		containerEl.empty(); // Clear old settings
 
 		// ### Habits Page Settings ###
-		containerEl.createEl("h3", { text: "Habits Page Settings" });
+		containerEl.createEl("h3", { text: "Habits Page" });
 
 		new Setting(containerEl)
 			.setName("Habit folder")
@@ -133,7 +133,7 @@ export class HabitSettingTab extends PluginSettingTab {
 					text
 						.setValue(this.plugin.settings[key] as string)
 						.onChange(async (value) => {
-							(this.plugin.settings[key] as any) = value;
+							(this.plugin.settings[key] as string) = value;
 							await this.plugin.saveSettings();
 						})
 				);
@@ -152,7 +152,7 @@ export class HabitSettingTab extends PluginSettingTab {
 
 
 		// ### Periodic Habits Settings ###
-		containerEl.createEl("h3", { text: "Periodic Habits Setting" });
+		containerEl.createEl("h3", { text: "Periodic Habits" });
 		
 		// CORRECTED: This variable will hold the results container.
 		let periodicSettingsContainer: HTMLDivElement;
@@ -188,7 +188,7 @@ export class HabitSettingTab extends PluginSettingTab {
 			);
 
 		// ### Inline Habit Settings ###
-		containerEl.createEl("h3", { text: "Inline Habits Setting" });
+		containerEl.createEl("h3", { text: "Inline Habits" });
 
         const createIconSetting = (name: string, key: keyof HabitTrackerSettings) => {
 			new Setting(containerEl)
@@ -197,7 +197,7 @@ export class HabitSettingTab extends PluginSettingTab {
 					text
 						.setValue(this.plugin.settings[key] as string)
 						.onChange(async (value) => {
-							(this.plugin.settings[key] as any) = value;
+							(this.plugin.settings[key] as string) = value;
 							await this.plugin.saveSettings();
 						})
 				);
@@ -209,7 +209,7 @@ export class HabitSettingTab extends PluginSettingTab {
         createIconSetting("Default unrated icon", "inline_DefaultUnratedIcon");
 
 		// ### Render Settings ###
-		containerEl.createEl("h3", { text: "Rendering Habits Settings" });
+		containerEl.createEl("h3", { text: "Rendering Habits" });
 		
 		new Setting(containerEl)
 			.setName("Global Color")
@@ -245,7 +245,7 @@ export class HabitSettingTab extends PluginSettingTab {
 		const periodicNotesSettings = getPeriodicNotesSettings(this.app);
 		
 		// Use `any` to access properties of the external plugin's settings
-		const anySettings = periodicNotesSettings as any;
+		const anySettings = periodicNotesSettings as PeriodicNotesSettings;
 
 		if (!anySettings || Object.keys(anySettings).filter(k => anySettings[k]?.enabled).length === 0) {
 			containerEl.createEl('p', { text: 'Could not read settings from Periodic Notes. Is it installed and enabled? Or are no periodic notes enabled?' });

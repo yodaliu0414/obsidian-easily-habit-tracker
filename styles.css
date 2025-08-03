@@ -1,8 +1,151 @@
-/*
+.habit-calendar-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1; /* This is the key fix */
+}
+/* --- Main Block Rendering Containers --- */
+.dmct-habit-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.dmct-habit-controls {
+    display: flex;
+    gap: 8px;
+}
 
-If your plugin does not need CSS, delete this file.
+.dmct-habit-calendar-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 12px;
+  grid-template-columns: repeat(var(--habits-per-row, 1), 1fr);
+}
 
-*/
+.dmct-habit-calendar-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-size: 0.9em;
+}
+
+.dmct-habit-calendar-grid{
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    gap: 8px;
+}
+
+.dmct-habit-calendar-dow{
+    text-align: center;
+}
+
+
+.dmlr-habit-header-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dmlr-habit-controls{
+    display: flex;
+    gap: 8px;
+}
+
+.dmlr-habit-list-container{
+    display: grid;
+    gap: 4px;
+    align-items: center;
+    margin-top: 8px;
+    width: max-content;
+    grid-template-columns: auto repeat(var(--days-in-month, 1), 30px);
+}
+
+.dmlr-habit-list-dow{
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.dmlr-habit-list-name{
+    font-size: 0.9em;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+.dwlr-habit-header-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dwlr-habit-controls{
+    display: flex;
+    gap: 8px;
+}
+
+.dwlr-habit-list-container{
+    display: grid;
+    gap: 4px;
+    align-items: center;
+    margin-top: 8px;
+    width: max-content;
+    grid-template-columns: auto repeat(7, 30px);
+}
+
+.dwlr-habit-list-dow{
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.dwlr-habit-list-name{
+    font-size: 0.9em;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+/* --- Yearly Calendar View --- */
+.dyct-habit-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.dyct-habit-controls {
+    display: flex;
+    gap: 8px;
+}
+.dyct-habit-calendar-title {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+.dyct-habit-year-grid {
+    /* This was the missing line */
+    display: grid;
+    /* Use the CSS variable for columns */
+    grid-template-columns: auto repeat(var(--grid-column-count), 1fr);
+    grid-template-rows: auto repeat(7, 1fr);
+    gap: 2px;
+    align-items: center;
+}
+.dyct-month-header-container {
+    /* This was also missing display: grid */
+    display: grid;
+    grid-column: 2 / span var(--grid-column-count);
+    grid-row: 1;
+    grid-template-columns: repeat(var(--grid-column-count), 1fr);
+    gap: 2px;
+}
+.dyct-habit-month-label {
+    grid-column: var(--grid-column);
+    font-size: 0.8em;
+    text-align: center;
+}
+.dyct-habit-dow-label {
+    grid-column: 1;
+    grid-row: var(--day-label);
+    font-size: 0.8em;
+    padding-right: 8px;
+}
+
+

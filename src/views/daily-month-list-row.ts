@@ -20,15 +20,9 @@ export async function renderMonthListRow(
     let currentShape = settings.shape || 'circle';
     
     const mainContainer = el.createDiv();
-    const headerContainer = mainContainer.createDiv({ cls: 'habit-header-container'});
-    headerContainer.style.display = 'flex';
-    headerContainer.style.justifyContent = 'space-between';
-    headerContainer.style.alignItems = 'center';
-
+    const headerContainer = mainContainer.createDiv({ cls: 'dmlr-habit-header-container'});
     headerContainer.createEl('h4', { text: month.format("MMMM, YYYY") });
-    const controls = headerContainer.createDiv({ cls: 'habit-controls' });
-    controls.style.display = 'flex';
-    controls.style.gap = '8px';
+    const controls = headerContainer.createDiv({ cls: 'dmlr-habit-controls' });
 
     const shapeButton = controls.createEl('button', { text: `Use ${currentShape === 'circle' ? 'Square' : 'Circle'}` });
     shapeButton.onClickEvent(() => {
@@ -36,32 +30,21 @@ export async function renderMonthListRow(
         updateCodeBlockSource('shape', currentShape);
     });
 
-    const listContainer = mainContainer.createDiv({ cls: 'habit-list-container' });
-    listContainer.style.display = 'grid';
-    // Dynamically set columns based on the number of days in the month
-    listContainer.style.gridTemplateColumns = `auto repeat(${daysInMonth}, 30px)`; 
-    listContainer.style.gap = '4px';
-    listContainer.style.alignItems = 'center';
-    listContainer.style.marginTop = '8px';
-    listContainer.style.width = 'max-content';
+    const listContainer = mainContainer.createDiv({ cls: 'dmlr-habit-list-container' });
+    listContainer.style.setProperty('--days-in-month', daysInMonth.toString());
+    
 
     // --- Render Header Row ---
     listContainer.createDiv(); // Empty cell for the top-left corner
     for (let i = 1; i <= daysInMonth; i++) {
         const dayString = i < 10 ? `0${i}` : i.toString();
-        const headerEl = listContainer.createDiv({ text: dayString, cls: 'habit-list-dow' });
-        headerEl.style.textAlign = 'center';
-        headerEl.style.fontWeight = 'bold';
-        headerEl.style.fontSize = '0.9em';
+        listContainer.createDiv({ text: dayString, cls: 'dmlr-habit-list-dow' });
     }
 
     // --- Render Habit Rows ---
     const startDate = month.clone().startOf('month');
     for (const habitName of habitsToRender) {
-        const nameEl = listContainer.createDiv({ text: habitName, cls: 'habit-list-name' });
-        nameEl.style.fontSize = '0.9em';
-        nameEl.style.paddingRight = '8px';
-        nameEl.style.whiteSpace = 'nowrap';
+        listContainer.createDiv({ text: habitName, cls: 'dmlr-habit-list-name' });
 
         for (let i = 0; i < daysInMonth; i++) {
             const day = startDate.clone().add(i, 'days');
@@ -70,7 +53,6 @@ export async function renderMonthListRow(
 
             const iconInfo = getIconInfo(plugin, settings, habitName, dayStr, habitData, currentShape);
             const iconEl = createIconElement(app, iconInfo);
-            iconEl.style.justifySelf = 'center';
             listContainer.appendChild(iconEl);
         }
     }

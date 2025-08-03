@@ -1,11 +1,12 @@
 import { App } from 'obsidian';
 
 // Interface to describe the structure of Periodic Notes settings
-interface PeriodicNotesSettings {
-    daily?: { folder?: string; format?: string; };
-    weekly?: { folder?: string; format?: string; };
-    monthly?: { folder?: string; format?: string; };
-    yearly?: { folder?: string; format?: string; };
+export interface PeriodicNotesSettings {
+    [key: string]: {
+        enabled?: boolean;
+        folder?: string;
+        format?: string;
+    }
 }
 
 /**

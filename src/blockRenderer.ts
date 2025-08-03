@@ -1,25 +1,24 @@
 import { App, MarkdownPostProcessorContext, parseYaml } from 'obsidian';
-import type HabitTrackerPlugin from './main';
+import HabitTrackerPlugin from '../main';
 import { readHabitData } from './readHabits';
 import { renderCalendarTight } from './views/daily-month-calendar-tight';
 import { renderCalendarYearTight } from './views/daily-year-calendar-tight';
 import { renderListRow } from './views/daily-week-list-row';
-import { renderMonthListRow } from './views/daily-month-list-row';
+import { renderMonthListRow } from './views/daily-month-list-row'; // New import
 
 // --- View Router ---
 const viewRenderers: { [key: string]: Function } = {
     'daily-month-Calendar-Tight': renderCalendarTight,
     'daily-year-Calendar-Tight': renderCalendarYearTight,
     'daily-week-List-Row': renderListRow,
-    'daily-month-List-Row': renderMonthListRow,
+    'daily-month-List-Row': renderMonthListRow, // New entry
 };
 
 /**
  * Registers the handler for the 'habit-tracker' code block.
  */
 export function registerHabitTrackerBlock(plugin: HabitTrackerPlugin) {
-    // CORRECTED: Added explicit types for source, el, and ctx
-    plugin.registerMarkdownCodeBlockProcessor('habit-tracker', (source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+    plugin.registerMarkdownCodeBlockProcessor('habit-tracker', (source:string, el:HTMLElement, ctx:MarkdownPostProcessorContext) => {
         renderHabitBlock(plugin, source, el, ctx);
     });
 }

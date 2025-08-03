@@ -1,71 +1,69 @@
 import { MarkdownView, App, FrontMatterCache } from 'obsidian';
-import HabitTrackerPlugin from './main';
+import type HabitTrackerPlugin from './main';
 
 // Helper to parse the value string and separate the warning flag
 function parseValueString(valStr: string): { values: string[], warnFlag: string } {
     const parts = valStr.split(',');
-    const warnFlag = parts.pop() || 'T'; // Default to 'T' if missing
+    const warnFlag = parts.pop() || 'T';
     return { values: parts, warnFlag };
 }
 
-export function renderChecks(valStr: string, id: string, plugin: HabitTrackerPlugin): string {
+// All render functions now return an HTMLElement for security
+export function renderChecks(valStr: string, id: string, plugin: HabitTrackerPlugin, habitProperties?: FrontMatterCache | null): HTMLElement {
     const { values, warnFlag } = parseValueString(valStr);
     const [checkedStr, allStr, checklist = "", customCheckedIcon, customUncheckedIcon] = values;
     const all = parseInt(allStr) || checklist.length;
     const state = checklist || "0".repeat(all);
 
-    // SIMPLIFIED LOGIC: The rendered icon is either what's in the text, or the global default.
-    // It no longer depends on the habit's frontmatter during rendering.
-    const checkedIcon = customCheckedIcon || plugin.settings.inline_DefaultCheckedIcon;
-    const uncheckedIcon = customUncheckedIcon || plugin.settings.inline_DefaultUncheckedIcon;
+    const checkedIcon = customCheckedIcon || (habitProperties && habitProperties[plugin.settings.prop_Checked_Icon]) || plugin.settings.inline_DefaultCheckedIcon;
+    const uncheckedIcon = customUncheckedIcon || (habitProperties && habitProperties[plugin.settings.prop_Unchecked_Icon]) || plugin.settings.inline_DefaultUncheckedIcon;
 
-    const boxes = Array.from({ length: all }, (_, i) => {
+    const wrapper = createSpan({ cls: 'habit-wrapper', attr: { 'data-id': id, 'data-type': 'checks', 'data-warn': warnFlag, 'data-custom-checked': customCheckedIcon || '', 'data-custom-unchecked': customUncheckedIcon || '', 'data-final-checked-icon': checkedIcon, 'data-final-unchecked-icon': uncheckedIcon } });
+
+    for (let i = 0; i < all; i++) {
         const isChecked = state[i] === "1";
         const icon = isChecked ? checkedIcon : uncheckedIcon;
-        return `<span class="habit-check" style="cursor: pointer;" data-pos="${i}" data-checked="${isChecked ? 'true' : 'false'}">${icon}</span>`;
-    }).join("");
-
-    // The data attributes now only need to store the custom icons from the text.
-    return `<span class="habit-wrapper" data-id="${id}" data-type="checks" data-warn="${warnFlag}" data-custom-checked="${customCheckedIcon || ''}" data-custom-unchecked="${customUncheckedIcon || ''}">${boxes}</span>`;
+        wrapper.createSpan({ cls: 'habit-check', text: icon, attr: { 'style': 'cursor: pointer;', 'data-pos': i, 'data-checked': isChecked ? 'true' : 'false' } });
+    }
+    return wrapper;
 }
 
-export function renderRating(valStr: string, id:string, plugin: HabitTrackerPlugin): string {
+export function renderRating(valStr: string, id:string, plugin: HabitTrackerPlugin, habitProperties?: FrontMatterCache | null): HTMLElement {
     const { values, warnFlag } = parseValueString(valStr);
     const [rateStr, maxStr, customRated, customUnrated] = values;
     const value = parseInt(rateStr) || 0;
     const max = parseInt(maxStr) || 5;
 
-    // SIMPLIFIED LOGIC: Use the icon from the text or the global default.
-    const ratedIcon = customRated || plugin.settings.inline_DefaultRatedIcon;
-    const unratedIcon = customUnrated || plugin.settings.inline_DefaultUnratedIcon;
+    const ratedIcon = customRated || (habitProperties && habitProperties[plugin.settings.prop_Rated_Icon]) || plugin.settings.inline_DefaultRatedIcon;
+    const unratedIcon = customUnrated || (habitProperties && habitProperties[plugin.settings.prop_Unrated_Icon]) || plugin.settings.inline_DefaultUnratedIcon;
 
-    const stars = Array.from({ length: max }, (_, i) =>
-        `<span class="habit-star" style="cursor: pointer;" data-val="${i + 1}">${i < value ? ratedIcon : unratedIcon}</span>`
-    ).join("");
+    const wrapper = createSpan({ cls: 'habit-wrapper', attr: { 'data-id': id, 'data-type': 'rating', 'data-warn': warnFlag, 'data-max': max, 'data-rated': customRated || '', 'data-unrated': customUnrated || '', 'data-final-rated-icon': ratedIcon, 'data-final-unrated-icon': unratedIcon } });
 
-    return `<span class="habit-wrapper" data-id="${id}" data-type="rating" data-warn="${warnFlag}" data-max="${max}" data-rated="${customRated || ''}" data-unrated="${customUnrated || ''}">${stars}</span>`;
+    for (let i = 0; i < max; i++) {
+        wrapper.createSpan({ cls: 'habit-star', text: i < value ? ratedIcon : unratedIcon, attr: { 'style': 'cursor: pointer;', 'data-val': i + 1 } });
+    }
+    return wrapper;
 }
 
-export function renderNumber(valStr: string, id: string): string {
+export function renderNumber(valStr: string, id: string): HTMLElement {
     const { values, warnFlag } = parseValueString(valStr);
     const [inputStr, upperStr, unit = ""] = values;
-    const value = inputStr || "0";
-    const upper = upperStr || "0";
-
-    return `<span class="habit-wrapper" data-id="${id}" data-type="number" data-warn="${warnFlag}" data-unit="${unit}" data-upper="${upper}">
-        <input type="number" class="habit-number-input" value="${value}" min="0" style="width:50px; text-align: center;"> / ${upper} ${unit}
-    </span>`;
+    
+    const wrapper = createSpan({ cls: 'habit-wrapper', attr: { 'data-id': id, 'data-type': 'number', 'data-warn': warnFlag, 'data-unit': unit, 'data-upper': upperStr || '0' } });
+    wrapper.createEl('input', { type: 'number', cls: 'habit-number-input', value: inputStr || '0', attr: { 'min': '0', 'style': 'width:50px; text-align: center;' } });
+    wrapper.appendText(` / ${upperStr || '0'} ${unit}`);
+    return wrapper;
 }
 
-export function renderProgress(valStr: string, id: string): string {
+export function renderProgress(valStr: string, id: string): HTMLElement {
     const { values, warnFlag } = parseValueString(valStr);
     const [valueStr, totalStr] = values;
-    const value = parseInt(valueStr) || 0;
-    const total = parseInt(totalStr) || 100;
 
-    return `<span class="habit-wrapper" data-id="${id}" data-type="progress" data-warn="${warnFlag}" data-max="${total}">
-        <input type="range" class="habit-progress-slider" value="${value}" max="${total}"> <span class="habit-progress-value">${value}</span>/${total}
-    </span>`;
+    const wrapper = createSpan({ cls: 'habit-wrapper', attr: { 'data-id': id, 'data-type': 'progress', 'data-warn': warnFlag, 'data-max': totalStr || '100' } });
+    wrapper.createEl('input', { type: 'range', cls: 'habit-progress-slider', value: valueStr || '0', attr: { 'max': totalStr || '100' } });
+    wrapper.createSpan({ cls: 'habit-progress-value', text: valueStr || '0' });
+    wrapper.appendText(`/${totalStr || '100'}`);
+    return wrapper;
 }
 
 export function attachHandlers(p: HTMLElement, plugin: HabitTrackerPlugin) {
