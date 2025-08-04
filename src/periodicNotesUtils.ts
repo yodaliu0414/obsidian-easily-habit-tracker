@@ -16,7 +16,7 @@ export interface PeriodicNotesSettings {
  */
 export function getPeriodicNotesSettings(app: App): PeriodicNotesSettings | null {
     // The `any` type is used here because we are accessing an external plugin's properties
-    const periodicNotesPlugin = (app as any).plugins.plugins['periodic-notes'];
+    const periodicNotesPlugin = (app as any ).plugins.plugins['periodic-notes'];
     if (periodicNotesPlugin && periodicNotesPlugin.settings) {
         return periodicNotesPlugin.settings;
     }

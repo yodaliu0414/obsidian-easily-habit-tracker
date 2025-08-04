@@ -186,10 +186,10 @@ export class BlockSettingsModal extends Modal {
         contentEl.createEl("h2", { text: "Habit Tracker Block Settings" });
 
         new Setting(contentEl).setName("Habits to render").setDesc("Enter habit names as [[links]], separated by commas, or type ALL.").addTextArea(text => text.setPlaceholder("[[Habit 1]], [[Habit 2]]").setValue(this.habits).onChange(value => this.habits = value));
-        new Setting(contentEl).setName("Data Source").addDropdown(dropdown => dropdown.addOption('daily', 'Daily Notes').addOption('weekly', 'Weekly Notes').setValue(this.type).onChange(value => this.type = value as any));
+        new Setting(contentEl).setName("Data Source").addDropdown(dropdown => dropdown.addOption('daily', 'Daily Notes').addOption('weekly', 'Weekly Notes').setValue(this.type).onChange(value => this.type = value as 'daily' | 'weekly'));
         
         const periodSetting = new Setting(contentEl).setName("Period to Display");
-        periodSetting.addDropdown(dropdown => dropdown.addOption('month', 'Month').addOption('week', 'Week').addOption('year', 'Year').setValue(this.periodType).onChange(value => { this.periodType = value as any; this.updatePeriodDefault(); this.display(); }));
+        periodSetting.addDropdown(dropdown => dropdown.addOption('month', 'Month').addOption('week', 'Week').addOption('year', 'Year').setValue(this.periodType).onChange(value => { this.periodType = value as 'month' | 'week' | 'year'; this.updatePeriodDefault(); this.display(); }));
         periodSetting.addText(text => text.setValue(this.periodValue).onChange(value => this.periodValue = value));
 
         new Setting(contentEl)
@@ -200,7 +200,7 @@ export class BlockSettingsModal extends Modal {
                 .setValue(this.view)
                 .onChange(value => this.view = value));
         
-        new Setting(contentEl).setName("Icon Shape").addDropdown(dropdown => dropdown.addOption('circle', 'Circle').addOption('square', 'Square').setValue(this.shape).onChange(value => this.shape = value as any));
+        new Setting(contentEl).setName("Icon Shape").addDropdown(dropdown => dropdown.addOption('circle', 'Circle').addOption('square', 'Square').setValue(this.shape).onChange(value => this.shape = value as 'circle' | 'square'));
         new Setting(contentEl).setName("Habits per row").addText(text => text.setValue(this.habitsPerRow.toString()).onChange(value => this.habitsPerRow = parseInt(value) || 1));
         new Setting(contentEl).setName("Use customized color").addToggle(toggle => toggle.setValue(this.useCustomizedColor).onChange(value => this.useCustomizedColor = value));
 

@@ -1,6 +1,6 @@
 import { App, TFile, moment } from 'obsidian';
 import HabitTrackerPlugin from './main';
-import { getPeriodicNotesSettings } from './periodicNotesUtils';
+import {PeriodicNotesSettings, getPeriodicNotesSettings } from './periodicNotesUtils';
 
 export interface HabitData {
     type: string;
@@ -15,7 +15,7 @@ export type HabitDataMap = Map<string, Map<string, HabitData>>;
 
 export async function readHabitData(app: App, plugin: HabitTrackerPlugin, settings: any, habitsToRender: string[]): Promise<HabitDataMap> {
     const habitDataMap: HabitDataMap = new Map();
-    const periodicSettings = getPeriodicNotesSettings(app) as any;
+    const periodicSettings = getPeriodicNotesSettings(app) as PeriodicNotesSettings;
     
     if (!periodicSettings || !periodicSettings[settings.type]?.enabled) {
         console.error(`Habit Tracker: Periodic notes for type "${settings.type}" are not enabled.`);
@@ -34,7 +34,7 @@ export async function readHabitData(app: App, plugin: HabitTrackerPlugin, settin
         startDate = moment(periodValue); 
     }
     
-    const endDate = moment(startDate).endOf(periodType as any);
+    const endDate = moment(startDate).endOf(periodType as 'month' | 'week' | 'year');
 
 
     for (let m = moment(startDate); m.isSameOrBefore(endDate); m.add(1, 'days')) {
