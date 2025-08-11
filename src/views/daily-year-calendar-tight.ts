@@ -18,7 +18,7 @@ export async function renderCalendarYearTight(
 
     let currentShape = settings.shape || 'circle';
     
-    const mainContainer = el.createDiv();
+    const mainContainer = el.createDiv({cls:'habit-main-container'});
     const headerContainer = mainContainer.createDiv({ cls: 'dyct-habit-header-container' });
     headerContainer.createEl('h4', { text: year.format("YYYY") });
     const controls = headerContainer.createDiv({ cls: 'dyct-habit-controls' });

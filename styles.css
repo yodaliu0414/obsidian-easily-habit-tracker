@@ -5,6 +5,10 @@
   line-height: 1; /* This is the key fix */
 }
 /* --- Main Block Rendering Containers --- */
+.habit-main-container{
+    overflow-x:auto;
+}
+
 .dmct-habit-header-container {
     display: flex;
     justify-content: space-between;

@@ -18,7 +18,7 @@ export async function renderListRow(
 
     let currentShape = settings.shape || 'circle';
     
-    const mainContainer = el.createDiv();
+    const mainContainer = el.createDiv({cls:'habit-main-container'});
     const headerContainer = mainContainer.createDiv({ cls: 'dwlr-habit-header-container'});
     headerContainer.createEl('h4', { text: `Week ${week.format("WW, YYYY")}` });
     const controls = headerContainer.createDiv({ cls: 'dwlr-habit-controls' });
@@ -31,27 +31,53 @@ export async function renderListRow(
 
     const listContainer = mainContainer.createDiv({ cls: 'dwlr-habit-list-container' });
 
-    listContainer.createDiv(); // Empty cell for the top-left corner
-    ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(day => {
-        listContainer.createDiv({ text: day, cls: 'dwlr-habit-list-dow' });
-    });
+    function drawCalendars(){
+        listContainer.empty()
+        listContainer.createDiv(); // Empty cell for the top-left corner
+        ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach(day => {
+            listContainer.createDiv({ text: day, cls: 'dwlr-habit-list-dow' });
+        });
 
-    const startDate = week.clone().startOf('isoWeek');
-    for (const habitName of habitsToRender) {
-        listContainer.createDiv({ text: habitName, cls: 'dwlr-habit-list-name' });
+        const startDate = week.clone().startOf('isoWeek');
+        for (const habitName of habitsToRender) {
+            listContainer.createDiv({ text: habitName, cls: 'dwlr-habit-list-name' });
 
-        for (let i = 0; i < 7; i++) {
-            const day = startDate.clone().add(i, 'days');
-            const dayStr = day.format('YYYY-MM-DD');
-            const habitData = data.get(dayStr)?.get(habitName);
+            for (let i = 0; i < 7; i++) {
+                const day = startDate.clone().add(i, 'days');
+                const dayStr = day.format('YYYY-MM-DD');
+                const habitData = data.get(dayStr)?.get(habitName);
 
-            const iconInfo = getIconInfo(plugin, settings, habitName, dayStr, habitData, currentShape);
-            const iconEl = createIconElement(app, iconInfo);
-            listContainer.appendChild(iconEl);
-        }
-    }
+                const iconInfo = getIconInfo(plugin, settings, habitName, dayStr, habitData, currentShape);
+                const iconEl = createIconElement(app, iconInfo);
+                listContainer.appendChild(iconEl);
+            }
+    }}
 
     async function updateCodeBlockSource(key: string, value: string) {
-        // ... (this function remains the same)
+        const file = app.vault.getAbstractFileByPath(ctx.sourcePath);
+        if (!(file instanceof TFile)) return;
+        const section = ctx.getSectionInfo(el);
+        if (!section) return;
+
+        const content = await app.vault.read(file);
+        const lines = content.split('\n');
+        const blockLines = lines.slice(section.lineStart + 1, section.lineEnd);
+        const regex = new RegExp(`^(\\s*${key}:\\s*)(.*)$`);
+        let found = false;
+        
+        const newBlockLines = blockLines.map(line => {
+            const match = line.match(regex);
+            if (match) {
+                found = true;
+                return `${match[1]}${value}`;
+            }
+            return line;
+        });
+
+        if (!found) newBlockLines.push(`${key}: ${value}`);
+
+        const newLines = [...lines.slice(0, section.lineStart + 1), ...newBlockLines, ...lines.slice(section.lineEnd)];
+        await app.vault.modify(file, newLines.join('\n'));
     }
+    drawCalendars()
 }

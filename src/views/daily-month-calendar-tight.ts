@@ -19,7 +19,8 @@ export async function renderCalendarTight(
     let currentShape = settings.shape || 'circle';
     let habitsPerRow = settings.habitsPerRow || Math.min(4, habitsToRender.length) || 1;
     
-    const mainContainer = el.createDiv();
+    const mainContainer = el.createDiv({cls:'habit-main-container'});
+    
     const headerContainer = mainContainer.createDiv({ cls: 'dmct-habit-header-container' });
     headerContainer.createEl('h4', { text: month.format("MMMM YYYY") });
     const controls = headerContainer.createDiv({ cls: 'dmct-habit-controls' });
@@ -43,6 +44,7 @@ export async function renderCalendarTight(
     });
 
     const calendarContainer = mainContainer.createDiv();
+
 
     function redrawCalendars() {
         calendarContainer.empty();
@@ -84,7 +86,30 @@ export async function renderCalendarTight(
     }
 
     async function updateCodeBlockSource(key: string, value: string) {
-        // ... (this function remains the same)
+        const file = app.vault.getAbstractFileByPath(ctx.sourcePath);
+        if (!(file instanceof TFile)) return;
+        const section = ctx.getSectionInfo(el);
+        if (!section) return;
+
+        const content = await app.vault.read(file);
+        const lines = content.split('\n');
+        const blockLines = lines.slice(section.lineStart + 1, section.lineEnd);
+        const regex = new RegExp(`^(\\s*${key}:\\s*)(.*)$`);
+        let found = false;
+        
+        const newBlockLines = blockLines.map(line => {
+            const match = line.match(regex);
+            if (match) {
+                found = true;
+                return `${match[1]}${value}`;
+            }
+            return line;
+        });
+
+        if (!found) newBlockLines.push(`${key}: ${value}`);
+
+        const newLines = [...lines.slice(0, section.lineStart + 1), ...newBlockLines, ...lines.slice(section.lineEnd)];
+        await app.vault.modify(file, newLines.join('\n'));
     }
     redrawCalendars();
 }

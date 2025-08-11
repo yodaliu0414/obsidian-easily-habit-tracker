@@ -19,7 +19,7 @@ export async function renderMonthListRow(
 
     let currentShape = settings.shape || 'circle';
     
-    const mainContainer = el.createDiv();
+    const mainContainer = el.createDiv({cls:'habit-main-container'});
     const headerContainer = mainContainer.createDiv({ cls: 'dmlr-habit-header-container'});
     headerContainer.createEl('h4', { text: month.format("MMMM, YYYY") });
     const controls = headerContainer.createDiv({ cls: 'dmlr-habit-controls' });
